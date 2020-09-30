@@ -1,5 +1,8 @@
-import fontTools.ttLib
+import argparse
+from pathlib import Path
+from fontTools.ttLib import TTFont, newTable
 import xml.etree.cElementTree as ET
+import tempfile
 from fontTools.ttLib.tables.TupleVariation import POINT_RUN_COUNT_MASK, TupleVariation
 
 # fontTools needs an axis object that stores the relevant axis info with certain functions. Here's what I was able to figure out it wants:
@@ -109,10 +112,8 @@ def interpolate (normalCVT:int, loc:list, interpolationAxes:list, cvt:int) -> No
                 diff = round((upperLimit[1] - lowerLimit[1]) * ratio)
         axisDifferences.append(diff)
 
-    print (axisDifferences)
     # since we need to account for differences across multiple axis, we sum up these differences and diff it from the normalCVT from the cvt table to find the adjusted CVT value
     expectedVal = normalCVT - sum(axisDifferences)
-    print (expectedVal)
     return expectedVal
     
 
@@ -193,7 +194,7 @@ def processMinor (minorLocations: list, locMap: list) -> None:
             l[1] = (minBound, peak, maxBound)
             l[0] = list(locMap.keys())[x]
 
-def makeCVAR (varFont: fontTools.ttLib.TTFont, tree: ET.ElementTree) -> None:
+def makeCVAR (varFont: TTFont, tree: ET.ElementTree) -> None:
     root = tree.getroot()
     TSIC = root.find("TSIC")
 
@@ -219,10 +220,9 @@ def makeCVAR (varFont: fontTools.ttLib.TTFont, tree: ET.ElementTree) -> None:
     minorLocations = []
     for i, loc in enumerate(TSIC.findall("RecordLocations")):
         axisLocation = []
-
         major = False
         for axis in loc.findall("Axis"):    # For the location map, we really only care about points on the major axes
-            if axis.get("value") == "0.0" or axis.get("value") == "0":
+            if axis.get("value") == "0.0" or axis.get("value") == "0" or len(keyValues) == 1:
                 major = True
         
         # once we know a given record has a value of 0.0 (eg, on major axis), we add it to the locMap
@@ -324,6 +324,57 @@ def makeCVAR (varFont: fontTools.ttLib.TTFont, tree: ET.ElementTree) -> None:
         var = TupleVariation(support, delta)
         variations.append(var)
 
-    varFont["cvar"] = fontTools.ttLib.newTable('cvar')
+    varFont["cvar"] = newTable('cvar')
     varFont["cvar"].version = 1
     varFont["cvar"].variations = variations
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="misc font work")
+
+    parser.add_argument(
+        "-o",
+        type=str,
+        dest="inputPath",
+        help='path to input font',
+        required=True,
+    )
+    parser.add_argument(
+        "-s",
+        type=str,
+        dest="vttPath",
+        help='path to font with TSIC source font',
+        default=None,
+        required=True,
+    )
+    parser.add_argument(
+        "-d",
+        type=str,
+        dest="output",
+        help='path for output',
+    )
+
+    args = parser.parse_args()
+
+    inputPath = Path(vars(args).get("inputPath"))
+    vttPath = Path(vars(args).get("vttPath"))
+
+
+    font = TTFont(inputPath)
+    vttSource = TTFont(vttPath)
+
+    tree = ET.ElementTree()
+    TSICfile = tempfile.NamedTemporaryFile()
+    vttSource.saveXML(TSICfile.name, tables=["TSIC"])
+    tree = ET.parse(TSICfile.name)
+
+    makeCVAR(font, tree)
+
+    if args.output:
+        output = vars(args).get("output")
+    else:
+        newName = str(inputPath.name)[:-4]+"-cvar.ttf"
+        output = inputPath.parent / newName
+
+    font.save(output)
+    

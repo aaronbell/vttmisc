@@ -1,4 +1,6 @@
 import fontTools.ttLib
+from fontTools.ttLib import TTFont
+import argparse
 from pathlib import Path
 
 def clearSVCTA(data: str) -> None:
@@ -13,7 +15,7 @@ def clearSVCTA(data: str) -> None:
         
     return newdata
 
-def delete(font: fontTools.ttLib.TTFont, output: Path) -> None:
+def delete(font: TTFont, output: Path) -> None:
     for program in font["TSI1"].glyphPrograms:
         data = str.encode(font["TSI1"].glyphPrograms.get(program))
         data = str(data.decode())
@@ -49,7 +51,7 @@ def reWriteOFFSET(data: str, glyphOrder: list, glyphOrder_old: list) -> None:
 
     return newdata
 
-def fixOFFSET(VTTSource: fontTools.ttLib.TTFont, newFont: fontTools.ttLib.TTFont) -> None:
+def fixOFFSET(VTTSource: TTFont, newFont: TTFont) -> None:
 
     glyphOrder = newFont.getGlyphOrder()
     glyphOrder_old = VTTSource.getGlyphOrder()
@@ -61,3 +63,67 @@ def fixOFFSET(VTTSource: fontTools.ttLib.TTFont, newFont: fontTools.ttLib.TTFont
         newFont["TSI1"].glyphPrograms[program] = reWriteOFFSET(data, glyphOrder, glyphOrder_old)
         newFont["TSI1"].glyphPrograms[program].encode()
     return newFont
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="misc font work")
+
+    parser.add_argument( 
+        "--fix-offset", 
+        default=False,
+        action="store_true",
+        dest="offset",
+        help="Fix the offset of the VTT source based on old version of font",
+        )
+    parser.add_argument(
+        "--clear-svtca", 
+        default=False,
+        action="store_true",
+        dest="svtca",
+        help="Remove all SVTCA[X] code from the VTT source",
+        )
+    parser.add_argument(
+        "-o",
+        type=str,
+        dest="inputPath",
+        help='path to input font',
+        required=True,
+    )
+    parser.add_argument(
+        "-s",
+        type=str,
+        dest="vttPath",
+        help='path to old VTT source font',
+        default=None,
+    )
+    parser.add_argument(
+        "-d",
+        type=str,
+        dest="output",
+        help='path for output',
+    )
+
+    args = parser.parse_args()
+
+    inputPath = Path(vars(args).get("inputPath"))
+    if vars(args).get("vttPath"):
+        vttPath = Path(vars(args).get("vttPath"))
+    else:
+        vttPath = None
+
+    if vars(args).get("offset") == True:
+        if args.output:
+            output = vars(args).get("output")
+        else:
+            newName = str(inputPath.name)[:-4]+"-fixed.ttf"
+            output = inputPath.parent / newName
+        
+        updatedFont = fixOFFSET(TTFont(vttPath), TTFont(inputPath))
+        
+        updatedFont.save(output)
+    if vars(args).get("svtca") == True:
+        if args.output:
+            output = vars(args).get("output")
+        else:
+            newName = str(inputPath.name)[:-4]+"-stripped.ttf"
+            output = inputPath.parent / newName
+        delete(TTFont(inputPath),output)
