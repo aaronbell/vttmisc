@@ -23,7 +23,7 @@ def delete(font: fontTools.ttLib.TTFont, output: Path) -> None:
 
     font.save(output)
 
-def reWriteTSI1(data: str, glyphOrder: list, glyphOrder_old: list) -> None:
+def reWriteOFFSET(data: str, glyphOrder: list, glyphOrder_old: list) -> None:
     lines = data.splitlines()
 
     newdata = ""
@@ -58,6 +58,6 @@ def fixOFFSET(VTTSource: fontTools.ttLib.TTFont, newFont: fontTools.ttLib.TTFont
         data = str.encode(newFont["TSI1"].glyphPrograms.get(program))
         data = str(data.decode())
 
-        newFont["TSI1"].glyphPrograms[program] = reWriteTSI1(data, glyphOrder, glyphOrder_old)
+        newFont["TSI1"].glyphPrograms[program] = reWriteOFFSET(data, glyphOrder, glyphOrder_old)
         newFont["TSI1"].glyphPrograms[program].encode()
     return newFont
