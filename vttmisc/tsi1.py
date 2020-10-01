@@ -51,7 +51,7 @@ def reWriteOFFSET(data: str, glyphOrder: list, glyphOrder_old: list) -> None:
 
     return newdata
 
-def fixOFFSET(VTTSource: TTFont, newFont: TTFont) -> None:
+def fixOFFSET(newFont: TTFont, VTTSource: TTFont) -> None:
 
     glyphOrder = newFont.getGlyphOrder()
     glyphOrder_old = VTTSource.getGlyphOrder()
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             newName = str(inputPath.name)[:-4]+"-fixed.ttf"
             output = inputPath.parent / newName
         
-        updatedFont = fixOFFSET(TTFont(vttPath), TTFont(inputPath))
+        updatedFont = fixOFFSET(TTFont(inputPath), TTFont(vttPath))
         
         updatedFont.save(output)
     if vars(args).get("svtca") == True:
