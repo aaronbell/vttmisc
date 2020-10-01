@@ -12,6 +12,8 @@ A library that contains a small set of scripts related to working with [VTT](htt
 
 ## Installation and Usage
 
+```
 $ pip install vttmisc
 
 $ python -m vttmisc --help
+```
