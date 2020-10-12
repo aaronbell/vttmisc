@@ -4,6 +4,8 @@ A library that contains a small set of scripts related to working with [VTT](htt
 
 ## Installation and Usage
 
+Vttmisc can be called via a build script, or directly from the command line.
+
 ```
 $ pip install vttmisc
 $ python vttmisc [-h] [--fix-offset] [--clear-svtca] [--makeCVAR] -i INPUTPATH [-s VTTPATH] [-d OUTPUT]
