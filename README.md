@@ -10,6 +10,7 @@ $ python vttmisc [-h] [--fix-offset] [--clear-svtca] [--makeCVAR] -i INPUTPATH [
 ```
 
 Options are as follows:
+
 `--clear-svtca`
 This script clears the "SVTCA[X]" tag from your VTT source files (specifically in the TSI1 table) as these can cause misalignments of diacritical marks. I suggest using this script after autohinting.
 
