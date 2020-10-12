@@ -1,8 +1,5 @@
-import argparse
-from pathlib import Path
 from fontTools.ttLib import TTFont, newTable
 import xml.etree.cElementTree as ET
-import tempfile
 from fontTools.ttLib.tables.TupleVariation import POINT_RUN_COUNT_MASK, TupleVariation
 
 # fontTools needs an axis object that stores the relevant axis info with certain functions. Here's what I was able to figure out it wants:
@@ -327,54 +324,4 @@ def makeCVAR (varFont: TTFont, tree: ET.ElementTree) -> None:
     varFont["cvar"] = newTable('cvar')
     varFont["cvar"].version = 1
     varFont["cvar"].variations = variations
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="misc font work")
-
-    parser.add_argument(
-        "-o",
-        type=str,
-        dest="inputPath",
-        help='path to input font',
-        required=True,
-    )
-    parser.add_argument(
-        "-s",
-        type=str,
-        dest="vttPath",
-        help='path to font with TSIC source font',
-        default=None,
-        required=True,
-    )
-    parser.add_argument(
-        "-d",
-        type=str,
-        dest="output",
-        help='path for output',
-    )
-
-    args = parser.parse_args()
-
-    inputPath = Path(vars(args).get("inputPath"))
-    vttPath = Path(vars(args).get("vttPath"))
-
-
-    font = TTFont(inputPath)
-    vttSource = TTFont(vttPath)
-
-    tree = ET.ElementTree()
-    TSICfile = tempfile.NamedTemporaryFile()
-    vttSource.saveXML(TSICfile.name, tables=["TSIC"])
-    tree = ET.parse(TSICfile.name)
-
-    makeCVAR(font, tree)
-
-    if args.output:
-        output = vars(args).get("output")
-    else:
-        newName = str(inputPath.name)[:-4]+"-cvar.ttf"
-        output = inputPath.parent / newName
-
-    font.save(output)
     
