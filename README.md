@@ -24,7 +24,9 @@ This script generates a cvar table based on the TSIC table. Under most circumsta
 
 Additional settings:
 
-`-i` - input path of new font (required)
-`-s` - input path of source VTT font (required for makeCVAR)
-`-d` - output path (optional – script will export using a default name if not provided)
+`-i` input path of new font (required)
+
+`-s` input path of source VTT font (required for makeCVAR)
+
+`-d` output path (optional – script will export using a default name if not provided)
 
