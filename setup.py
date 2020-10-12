@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="vttmisc",
-    version="0.0.2",
+    version="0.0.5",
     author="Aaron Bell",
     author_email="hello@sajatypeworks.com",
     description="A collection of misc scripts related to VTT",
