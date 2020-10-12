@@ -28,5 +28,5 @@ Additional settings:
 
 `-s` input path of source VTT font (required for makeCVAR)
 
-`-d` output path (optional – script will export using a default name if not provided)
+`-d` output path (optional: script will export using a default name if not provided)
 
