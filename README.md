@@ -8,7 +8,7 @@ Vttmisc can be called via a build script, or directly from the command line.
 
 ```
 $ pip install vttmisc
-$ python vttmisc [-h] [--fix-offset] [--clear-svtca] [--makeCVAR] -i INPUTPATH [-s VTTPATH] [-d OUTPUT]
+$ python -m vttmisc [-h] [--fix-offset] [--clear-svtca] [--makeCVAR] -i INPUTPATH [-s VTTPATH] [-d OUTPUT]
 ```
 
 Options are as follows:
