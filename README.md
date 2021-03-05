@@ -17,7 +17,7 @@ Options are as follows:
 This script clears the "SVTCA[X]" tag from your VTT source files (specifically in the TSI1 table) as these can cause misalignments of diacritical marks. I suggest using this script after autohinting.
 
 `--fix-offset`
-This script overcomes the GID restictions placed in the font due to use of the OFFSET command. It takes a source font, and a new font, and updates the new font with the appropriate GIDs. 
+This script overcomes the GID restictions placed in the font due to use of the OFFSET command. It takes a source font, and a new font, and updates the new font with the appropriate GIDs. Please note that this requires a proper relationship between glyph name and GID, such as `post` table v2, to work properly. 
 
 `--makeCVAR`
 This script generates a cvar table based on the TSIC table. Under most circumstances, output matches VTT's identically.*
